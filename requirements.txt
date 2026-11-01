@@ -112,7 +112,7 @@ starlette==1.10.0
 streamlit==1.66.1
 sympy==1.14.0
 tabulate==0.10.0
-tenacity==9.2.1
+tenacity==9.1.2
 threadpoolctl==3.7.0
 tokenizers==0.23.3
 torch==2.15.0
