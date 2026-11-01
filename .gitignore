@@ -1,4 +1,4 @@
-
+.env
 # Virtual environments
 .venv/
 venv/
@@ -51,3 +51,34 @@ __pycache__/
 
 # System files
 .DS_Store
+
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+venv/
+.venv/
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+
+# macOS
+.DS_Store
+
+# Uploaded research papers
+data/uploaded_pdfs/*
+data/processed/*
+
+# Keep placeholder files
+!data/uploaded_pdfs/.gitkeep
+!data/processed/.gitkeep
+
+# Vector database
+database/chroma_db/*
+
+# IDE
+.vscode/
+.neon
