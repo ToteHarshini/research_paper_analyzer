@@ -32,3 +32,22 @@ data/processed/*
 
 # Test cache
 .pytest_cache/
+
+# API keys and environment variables
+.env
+.env.*
+!.env.example
+
+# Python virtual environment
+.venv/
+venv/
+
+# Python cache files
+__pycache__/
+*.py[cod]
+
+# IDE settings
+.vscode/
+
+# System files
+.DS_Store
