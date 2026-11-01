@@ -1,8 +1,9 @@
 
+
 import json
 
-from src.llm import client, MODEL_NAME
-from google.genai import types
+from src.llm import generate_gemini_response
+
 
 def verify_claims(question, claims, evidence):
     """
@@ -41,7 +42,6 @@ Paper: {chunk['paper_title']}
 Section: {chunk['section']}
 Page: {chunk['page_number']}
 Text: {chunk['text']}
-
 """
 
     prompt = f"""
@@ -63,7 +63,7 @@ For every claim:
 4. Cite only source IDs supplied above.
 5. If evidence is insufficient, say so.
 
-Return only valid JSON in this format:
+Return only valid JSON:
 
 {{
     "verifications": [
@@ -83,13 +83,11 @@ Allowed statuses:
 - insufficient_evidence
 """
 
-    response = client.models.generate_content(
-        model=MODEL_NAME,
-        contents=prompt,
-        config=types.GenerateContentConfig(
-            temperature=0.1,
-            response_mime_type="application/json"
-        )
+    response = generate_gemini_response(
+        prompt=prompt,
+        temperature=0.1,
+        max_output_tokens=4000,
+        response_mime_type="application/json"
     )
 
     if not response.text:
@@ -127,7 +125,6 @@ Allowed statuses:
         if not isinstance(citations, list):
             citations = []
 
-        # Reject citation IDs that are not in retrieved evidence.
         valid_citations = [
             citation
             for citation in citations
@@ -144,10 +141,10 @@ Allowed statuses:
 
     return verified_results
 
+
 def extract_claims(question, evidence):
     """
     Extracts factual claims from retrieved research evidence.
-    These claims will be passed to verify_claims().
     """
 
     if not evidence:
@@ -163,7 +160,6 @@ Source ID: {chunk['chunk_id']}
 Paper: {chunk['paper_title']}
 Page: {chunk['page_number']}
 Text: {chunk['text']}
-
 """
 
     prompt = f"""
@@ -194,13 +190,11 @@ Return only valid JSON:
 }}
 """
 
-    response = client.models.generate_content(
-        model=MODEL_NAME,
-        contents=prompt,
-        config=types.GenerateContentConfig(
-            temperature=0.1,
-            response_mime_type="application/json"
-        )
+    response = generate_gemini_response(
+        prompt=prompt,
+        temperature=0.1,
+        max_output_tokens=4000,
+        response_mime_type="application/json"
     )
 
     if not response.text:

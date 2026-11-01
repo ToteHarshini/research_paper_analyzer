@@ -24,6 +24,12 @@ def main():
 
     print(f"Extracted {len(pages)} pages.")
 
+    print("\n--- DEBUGGING PDF TEXT ---")
+
+    for page in pages[:3]:
+        print("Page:", page["page"])
+        print("Text length:", len(page["text"]))
+        print("First 200 characters:", repr(page["text"][:200]))
     # 3. Generate chunks
     print("\n--- CHUNKING ---")
 

@@ -27,7 +27,7 @@ def extract_structured_findings(question, evidence):
     # Prepare evidence for Gemini
     evidence_text = []
 
-    for result in evidence:
+    for result in evidence[:5]:
         chunk = result["chunk"]
 
         evidence_text.append({
@@ -36,7 +36,7 @@ def extract_structured_findings(question, evidence):
             "paper_title": chunk.get("paper_title", "Unknown"),
             "section": chunk.get("section", "Unknown"),
             "page_number": chunk.get("page_number", "Unknown"),
-            "text": chunk["text"]
+            "text": chunk["text"][:700]
         })
 
     prompt = f"""
@@ -88,7 +88,7 @@ Important rules:
     response = generate_gemini_response(
         prompt=prompt,
         temperature=0.1,
-        max_output_tokens=4000,
+        max_output_tokens=2000,
         response_mime_type="application/json"
     )
 
