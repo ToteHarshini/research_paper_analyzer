@@ -1,8 +1,7 @@
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from pwdlib import PasswordHash
-
+from src.auth.security import hash_password, verify_password
 from src.db.models import (
     User,
     Paper,
@@ -10,20 +9,6 @@ from src.db.models import (
     Message,
     Citation,
 )
-
-password_hash = PasswordHash.recommended()
-
-
-# -------------------------
-# USER OPERATIONS
-# -------------------------
-
-def hash_password(password: str) -> str:
-    return password_hash.hash(password)
-
-
-def verify_password(password: str, hashed_password: str) -> bool:
-    return password_hash.verify(password, hashed_password)
 
 
 def create_user(

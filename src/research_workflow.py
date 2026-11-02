@@ -5,7 +5,7 @@ from langgraph.graph import StateGraph, END
 from src.agents.structured_extractor import extract_structured_findings
 from src.agents.planner import generate_subquestions
 from src.agents.researcher import research_subquestions
-from src.agents.verifier import extract_claims, verify_claims
+from src.agents.verifier import extract_claims, verify_claims, extract_and_verify_claims
 from src.agents.report_generator import generate_final_report
 from src.reranker import rerank_results
 
@@ -22,6 +22,7 @@ class ResearchState(TypedDict, total=False):
 
     claims: list
     verified_claims: list
+    structured_findings: list
     final_report: str
 
 
@@ -81,33 +82,20 @@ def reranker_node(state: ResearchState):
     }
 
 
-# NODE 4: Claim Extraction
-def claim_extraction_node(state: ResearchState):
+# NODE 4: Claim Verification Agent (Unified extraction & verification in 1 call)
+def claim_verification_node(state: ResearchState):
 
-    print("\n--- CLAIM EXTRACTION ---")
+    print("\n--- CLAIM VERIFICATION AGENT ---")
 
-    claims = extract_claims(
+    verified_claims = extract_and_verify_claims(
         question=state["question"],
-        evidence=state["reranked_results"]
+        evidence=state["reranked_results"],
+        max_evidence=6
     )
 
-    print(f"Extracted {len(claims)} claims.")
+    claims = [item["claim"] for item in verified_claims]
 
-    return {
-        "claims": claims
-    }
-
-
-# NODE 5: Verifier Agent
-def verifier_node(state: ResearchState):
-
-    print("\n--- VERIFIER AGENT ---")
-
-    verified_claims = verify_claims(
-        question=state["question"],
-        claims=state["claims"],
-        evidence=state["reranked_results"]
-    )
+    print(f"Extracted and verified {len(verified_claims)} claims.")
 
     for item in verified_claims:
         print(f"\nClaim: {item['claim']}")
@@ -115,23 +103,10 @@ def verifier_node(state: ResearchState):
         print(f"Citations: {item['citations']}")
 
     return {
+        "claims": claims,
         "verified_claims": verified_claims
     }
 
-class ResearchState(TypedDict, total=False):
-    question: str
-    index: Any
-    chunks: list
-
-    subquestions: list
-    retrieved_results: list
-    reranked_results: list
-
-    claims: list
-    verified_claims: list
-    structured_findings: list
-
-    final_report: str
 
 # NODE 6: Structured Research Agent
 def structured_extraction_node(state: ResearchState):
@@ -152,7 +127,9 @@ def structured_extraction_node(state: ResearchState):
     return {
         "structured_findings": findings
     }
-# NODE 6: Report Generator Agent
+
+
+# NODE 7: Report Generator Agent
 def report_generator_node(state: ResearchState):
 
     print("\n--- REPORT GENERATOR AGENT ---")
@@ -160,7 +137,8 @@ def report_generator_node(state: ResearchState):
     report = generate_final_report(
         question=state["question"],
         evidence=state["reranked_results"],
-        verified_claims=state["verified_claims"]
+        verified_claims=state["verified_claims"],
+        structured_findings=state.get("structured_findings")
     )
 
     print("\nFinal report generated.")
@@ -178,8 +156,7 @@ def build_research_graph():
     workflow.add_node("planner", planner_node)
     workflow.add_node("researcher", researcher_node)
     workflow.add_node("reranker", reranker_node)
-    workflow.add_node("claim_extraction", claim_extraction_node)
-    workflow.add_node("verifier", verifier_node)
+    workflow.add_node("claim_verification", claim_verification_node)
     workflow.add_node("structured_extraction", structured_extraction_node)
     workflow.add_node("report_generator", report_generator_node)
 
@@ -187,9 +164,8 @@ def build_research_graph():
 
     workflow.add_edge("planner", "researcher")
     workflow.add_edge("researcher", "reranker")
-    workflow.add_edge("reranker", "claim_extraction")
-    workflow.add_edge("claim_extraction", "verifier")
-    workflow.add_edge("verifier", "structured_extraction")
+    workflow.add_edge("reranker", "claim_verification")
+    workflow.add_edge("claim_verification", "structured_extraction")
     workflow.add_edge("structured_extraction", "report_generator")
     workflow.add_edge("report_generator", END)
 

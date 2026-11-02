@@ -4,20 +4,26 @@ from src.section_extractor import detect_sections
 
 pdf_path = "data/uploaded_pdfs/sample 2.pdf"
 
-# Extract PDF pages
-pages = extract_pdf_text(pdf_path)
 
-# Combine all pages into one text
-full_text = "\n".join(
-    page["text"] for page in pages
-)
+def main():
+    # Extract PDF pages
+    pages = extract_pdf_text(pdf_path)
 
-# Detect sections
-sections = detect_sections(full_text)
+    # Combine all pages into one text
+    full_text = "\n".join(
+        page["text"] for page in pages
+    )
 
-print("\n--- DETECTED SECTIONS ---")
+    # Detect sections
+    sections = detect_sections(full_text)
 
-for section, position in sections.items():
-    print(f"{section}: character position {position}")
+    print("\n--- DETECTED SECTIONS ---")
 
-print("\nSection detection completed!")
+    for section, position in sections.items():
+        print(f"{section}: character position {position}")
+
+    print("\nSection detection completed!")
+
+
+if __name__ == "__main__":
+    main()

@@ -82,3 +82,7 @@ database/chroma_db/*
 # IDE
 .vscode/
 .neon
+# Frontend dependencies and build
+node_modules/
+frontend/node_modules/
+frontend/dist/

@@ -24,9 +24,9 @@ Original research question:
 
 Instructions:
 1. Identify the main research objectives.
-2. Generate 3 to 6 focused subquestions.
-3. Cover relevant methods, datasets, experimental results,
-   limitations, and research gaps where applicable.
+2. Generate 3 to 5 focused subquestions (1 sentence each).
+3. Cover relevant methods, datasets, empirical performance,
+   and limitations where applicable.
 4. Avoid duplicate questions.
 5. Make every question independently searchable.
 6. Do not answer the questions.
@@ -44,6 +44,7 @@ Instructions:
     response = generate_gemini_response(
         prompt=prompt,
         temperature=0.2,
+        max_output_tokens=600,
         response_mime_type="application/json"
     )
 
